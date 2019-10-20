@@ -4,8 +4,7 @@
 // # define relationships between types 
 // # define requires 
 const graphql = require('graphql')
-const {GraphQLObjectType, GraphQLString, GraphQLSchema, GraphQLID, GraphQLInt, GraphQLList} = require('graphql') 
-const _= require('lodash')
+const {GraphQLObjectType, GraphQLString, GraphQLSchema, GraphQLID, GraphQLInt, GraphQLList, GraphQLNonNull} = require('graphql') 
 const axios = require('../src/connection.js')
 
 const BookType = new GraphQLObjectType({
@@ -42,7 +41,6 @@ const AuthorType = new GraphQLObjectType({
         books:{
             type: new GraphQLList(BookType),
             resolve(parent, args){
-                console.log('args', parent.id)
                 return axios.get(`/book/byAuthorId/${parent.id}`).then(res => res.data).catch(err => console.log(err))
             }
         }
@@ -93,20 +91,23 @@ const Mutation = new GraphQLObjectType({
         addAuthor:{
             type:AuthorType,
             args:{
-                name: {type: GraphQLString},
-                age:{type: GraphQLInt}
+                name: {type: new GraphQLNonNull(GraphQLString) },
+                age:{type: new GraphQLNonNull(GraphQLInt) }
             },
             resolve(parent, args){
                 return axios.post('/author', {...args})
-                .then(res => { res.data[0]}).catch(error => console.log(error))
+                .then(res => { 
+                    console.log(res.data)
+                    return res.data
+                }).catch(error => console.log(error))
             }
         },
         addBook:{
             type: BookType,
             args:{
-                name: {type: GraphQLString},
-                genre: {type: GraphQLString},
-                authorId: {type: GraphQLInt}
+                name: {type: new GraphQLNonNull(GraphQLString) },
+                genre: {type: new GraphQLNonNull(GraphQLString) },
+                authorId: {type: new GraphQLNonNull(GraphQLInt) }
             },
             resolve(parent, args){
                 return axios.post('/book', {...args})

@@ -69,6 +69,7 @@ router.get('/author/:id', async(req, res, next) => {
 router.post('/author', async(req, res, next) => {
     try{
         const author = await db(db.tables.authors).insert(req.body, '*')
+        console.log(author[0])
         res.json(author[0])
 
     }catch(err){
